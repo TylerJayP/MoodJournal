@@ -1177,3 +1177,653 @@ button:hover::after {
   transform: translateY(-20px);
   transition: opacity 300ms, transform 300ms;
 }
+
+
+/* Update Photo Upload Styles */
+.photo-section {
+  margin-bottom: 30px;
+}
+
+.photo-upload-container {
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.photo-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: #f7f9fc;
+  border: 2px dashed #ccd6e0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.photo-upload-area:hover {
+  background-color: #edf2f7;
+  border-color: #a4b6c8;
+}
+
+.photo-upload-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.photo-upload-button:hover {
+  transform: translateY(-5px);
+}
+
+.upload-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  color: #3498db;
+}
+
+.photo-upload-help {
+  color: #7f8c8d;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 15px;
+}
+
+/* Photo preview styles */
+.photo-preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #f7f9fc;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #e0e6ed;
+}
+
+.photo-preview-wrapper {
+  max-height: 300px; /* Reduced from 400px */
+  width: 60%; /* Make it narrower */
+  margin: 0 auto; /* Center it */
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.photo-preview {
+  max-width: 100%;
+  max-height: 300px; /* Reduced from 400px */
+  display: block;
+  object-fit: contain;
+}
+
+/* New caption styles */
+.photo-caption-container {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.photo-caption-input {
+  width: 100%;
+  min-height: 60px; /* Smaller than regular text areas */
+  padding: 10px;
+  border: 1px solid #e0e6ed;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #fff;
+  transition: all 0.3s ease;
+  resize: vertical;
+}
+
+.photo-caption-input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
+  outline: none;
+}
+
+.photo-caption-input::placeholder {
+  color: #95a5a6;
+  font-style: italic;
+}
+
+.photo-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.remove-photo-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f8f9fa;
+  color: #e74c3c;
+  border: 1px solid #e0e6ed;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-photo-button:hover {
+  background-color: #fee2e2;
+  color: #c0392b;
+  transform: translateY(-2px);
+}
+
+.remove-icon {
+  font-size: 16px;
+}
+
+.photo-indicator {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(52, 152, 219, 0.8);
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* Photo Viewer Styles */
+.photo-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+.photo-viewer-container {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.full-photo {
+  max-width: 100%;
+  max-height: 80vh;
+  display: block;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.photo-viewer-caption {
+  margin-top: 15px;
+  padding: 10px 15px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border-radius: 6px;
+  max-width: 80%;
+  text-align: center;
+  font-style: italic;
+}
+
+.close-photo-button {
+  position: absolute;
+  bottom: -50px;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.close-photo-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Dashboard styles */
+.dashboard {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s ease;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-title {
+  font-size: 24px;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.dashboard-toggle {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dashboard-toggle:hover {
+  background-color: #2980b9;
+}
+
+/* Dashboard tabs */
+.dashboard-tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+
+.dashboard-tab {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #7f8c8d;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.dashboard-tab:hover {
+  color: #3498db;
+}
+
+.dashboard-tab.active {
+  color: #3498db;
+}
+
+.dashboard-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #3498db;
+}
+
+.dashboard-overview,
+.dashboard-history {
+  animation: fadeIn 0.5s ease;
+}
+
+/* Add more dashboard and chart styles as needed */
+.mood-legend-title {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+/* Extra styles for tooltip */
+.chart-tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 10;
+  min-width: 120px;
+}
+
+/* Animation for mood dots */
+.mood-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.mood-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: white;
+  font-weight: bold;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  animation: popIn 0.5s ease forwards;
+  transform: scale(0.8);
+  animation-delay: calc(var(--index, 0) * 50ms);
+}
+
+.mood-dot:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 0.8; }
+}
+
+/* No data message */
+.no-data-message {
+  text-align: center;
+  padding: 40px 0;
+  color: #95a5a6;
+  font-style: italic;
+}
+
+/* Mood badges in journal items with multi-mood support */
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.mood-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  max-width: 70%;
+}
+
+.journal-date {
+  font-size: 14px;
+  color: #7f8c8d;
+  white-space: nowrap;
+}
+
+/* Mood Selector Styles */
+.mood-section {
+  margin: 20px 0 30px;
+  background-color: #f9f9fb;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.selected-moods-info {
+  margin-bottom: 15px;
+  text-align: center;
+  padding: 10px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.no-moods-message {
+  color: #7f8c8d;
+  font-style: italic;
+  animation: fadeIn 0.5s ease;
+}
+
+.selected-moods-count {
+  color: #7f8c8d;
+  font-weight: 500;
+  animation: fadeIn 0.5s ease;
+}
+
+.selected-moods-count span {
+  color: #3498db;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.mood-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.mood-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  width: 70px; /* Fixed width for better grid layout */
+  padding: 8px 4px;
+  border-radius: 8px;
+  background-color: transparent;
+}
+
+.mood-icon.selected {
+  opacity: 1;
+  transform: scale(1.1);
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mood-icon.selected::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  width: 30px;
+  height: 3px;
+  background-color: currentColor;
+  border-radius: 3px;
+}
+
+.mood-icon:hover {
+  opacity: 0.9;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.mood-icon:hover:not(.selected) {
+  transform: translateY(-3px);
+}
+
+.mood-icon svg {
+  width: 46px;
+  height: 46px;
+  margin-bottom: 6px;
+  transition: all 0.3s ease;
+}
+
+.mood-label {
+  font-size: 13px;
+  text-align: center;
+  color: #2c3e50;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.mood-icon.selected .mood-label {
+  font-weight: 600;
+}
+
+/* Mood Badge Styles */
+.mood-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  max-width: 75%;
+}
+
+.mood-badge {
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  display: inline-block;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  animation: scaleIn 0.3s ease forwards;
+  transform-origin: left center;
+}
+
+@keyframes scaleIn {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+/* Mood badge colors */
+.mood-Happy { background-color: #f1c40f; }
+.mood-Excited { background-color: #e67e22; }
+.mood-Peaceful { background-color: #2ecc71; }
+.mood-Grateful { background-color: #3498db; }
+.mood-Loved { background-color: #e84393; }
+.mood-Proud { background-color: #9b59b6; }
+.mood-Hopeful { background-color: #1abc9c; }
+.mood-Content { background-color: #27ae60; }
+.mood-Calm { background-color: #00cec9; }
+.mood-Sad { background-color: #3498db; }
+.mood-Frustrated { background-color: #e74c3c; }
+.mood-Tired { background-color: #95a5a6; }
+.mood-Upset { background-color: #9b59b6; }
+.mood-Anxious { background-color: #ff7f50; }
+.mood-Overwhelmed { background-color: #d35400; }
+.mood-Depressed { background-color: #34495e; }
+.mood-Angry { background-color: #c0392b; }
+.mood-Nervous { background-color: #fd79a8; }
+.mood-Bored { background-color: #636e72; }
+.mood-Confused { background-color: #6c5ce7; }
+.mood-none { background-color: #bdc3c7; }
+
+/* Journal item mood badges */
+.journal-item .mood-badges {
+  margin-bottom: 8px;
+}
+
+/* Improved journal item layout */
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.journal-date {
+  font-size: 13px;
+  color: #7f8c8d;
+  white-space: nowrap;
+  background-color: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .mood-icons {
+    gap: 8px;
+  }
+  
+  .mood-icon {
+    width: 60px;
+    padding: 6px 2px;
+  }
+  
+  .mood-icon svg {
+    width: 38px;
+    height: 38px;
+  }
+  
+  .mood-label {
+    font-size: 11px;
+  }
+  
+  .mood-badges {
+    max-width: 65%;
+  }
+}
+
+/* Enhanced animation for mood selection */
+.mood-icon.selected svg {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Tooltip for mood badges */
+.mood-badge {
+  position: relative;
+}
+
+.mood-badge:hover::after {
+  content: attr(data-count);
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* Multiple moods selected indicator */
+.multiple-moods-indicator {
+  display: inline-block;
+  background-color: #3498db;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 18px;
+  margin-left: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Journal item with multiple moods */
+.journal-item-multi-mood {
+  position: relative;
+}
+
+.journal-item-multi-mood::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, #3498db, #2ecc71, #f1c40f, #e74c3c);
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}

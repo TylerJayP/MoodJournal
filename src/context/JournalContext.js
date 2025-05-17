@@ -59,24 +59,26 @@ export const JournalProvider = ({ children }) => {
     return entries.find(entry => entry.id === id);
   };
     
-  // Create a new entry
-  const createEntry = () => {
-    // First, clean up any untitled, empty entries
-    cleanupEmptyEntries();
-    
-    const newEntry = {
-      id: uuidv4(),
-      name: user ? (user.displayName || user.username) : '',
-      mood: '',
-      title: '',
-      description: '',
-      gratitude: '',
-      date: new Date().toISOString().split('T')[0]
-    };
-      
-    setEntries(prevEntries => [newEntry, ...prevEntries]);
-    return newEntry;
+// Create a new entry
+const createEntry = () => {
+  // First, clean up any untitled, empty entries
+  cleanupEmptyEntries();
+  
+  const newEntry = {
+    id: uuidv4(),
+    name: user ? (user.displayName || user.username) : '',
+    moods: [], // Change from 'mood' to 'moods' array
+    title: '',
+    description: '',
+    gratitude: '',
+    photo: null,
+    photoCaption: '',
+    date: new Date().toISOString().split('T')[0]
   };
+    
+  setEntries(prevEntries => [newEntry, ...prevEntries]);
+  return newEntry;
+};
     
   // Update an existing entry
   const updateEntry = (updatedEntry) => {
@@ -100,46 +102,68 @@ export const JournalProvider = ({ children }) => {
     setEntries(prevEntries => prevEntries.filter(entry => entry.id !== id));
   };
     
-  // Get mood statistics
-  const getMoodStats = () => {
-    // Count occurrences of each mood
-    const moodCounts = entries.reduce((acc, entry) => {
-      if (entry.mood) {
-        acc[entry.mood] = (acc[entry.mood] || 0) + 1;
-      }
-      return acc;
-    }, {});
-      
-    // Get mood count by date (for last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-    const moodsByDate = entries
-      .filter(entry => new Date(entry.date) >= thirtyDaysAgo)
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .map(entry => ({
-        date: entry.date,
-        mood: entry.mood || 'Unspecified'
-      }));
-      
-    // Most frequent mood
-    let mostFrequentMood = 'None';
-    let maxCount = 0;
-      
-    Object.entries(moodCounts).forEach(([mood, count]) => {
-      if (count > maxCount) {
-        mostFrequentMood = mood;
-        maxCount = count;
+// Get mood statistics
+const getMoodStats = () => {
+  // Count occurrences of each mood
+  const moodCounts = {};
+  let totalMoodInstances = 0;
+  
+  entries.forEach(entry => {
+    // Handle both old entries with mood (string) and new entries with moods (array)
+    const moodsArray = Array.isArray(entry.moods) ? entry.moods : (entry.mood ? [entry.mood] : []);
+    
+    moodsArray.forEach(mood => {
+      if (mood) {
+        moodCounts[mood] = (moodCounts[mood] || 0) + 1;
+        totalMoodInstances++;
       }
     });
+  });
+  
+  // Get mood count by date (for last 30 days)
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const moodsByDate = [];
+  entries
+    .filter(entry => new Date(entry.date) >= thirtyDaysAgo)
+    .forEach(entry => {
+      // Handle both old entries with mood (string) and new entries with moods (array)
+      const moodsArray = Array.isArray(entry.moods) ? entry.moods : (entry.mood ? [entry.mood] : []);
       
-    return {
-      moodCounts,
-      moodsByDate,
-      mostFrequentMood,
-      totalEntries: entries.length
-    };
+      moodsArray.forEach(mood => {
+        if (mood) {
+          moodsByDate.push({
+            date: entry.date,
+            mood: mood
+          });
+        }
+      });
+    });
+
+  // Sort by date
+  moodsByDate.sort((a, b) => new Date(a.date) - new Date(b.date));
+  
+  // Most frequent mood
+  let mostFrequentMood = 'None';
+  let maxCount = 0;
+  
+  Object.entries(moodCounts).forEach(([mood, count]) => {
+    if (count > maxCount) {
+      mostFrequentMood = mood;
+      maxCount = count;
+    }
+  });
+  
+  return {
+    moodCounts,
+    moodsByDate,
+    mostFrequentMood,
+    totalEntries: entries.length,
+    totalMoodInstances,
+    uniqueMoods: Object.keys(moodCounts).length
   };
+};
     
   return (
     <JournalContext.Provider value={{

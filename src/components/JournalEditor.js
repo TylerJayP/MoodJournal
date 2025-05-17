@@ -1,12 +1,16 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useJournal } from '../context/JournalContext';
 import MoodSelector from './MoodSelector';
 import PromptGenerator from './PromptGenerator';
+import PhotoViewer from './PhotoViewer';
 
 const JournalEditor = () => {
   const [entry, setEntry] = useState(null);
   const [prompt, setPrompt] = useState('');
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [showPhotoViewer, setShowPhotoViewer] = useState(false);
   const { getEntry, updateEntry, createEntry, deleteEntry } = useJournal();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -28,6 +32,10 @@ const JournalEditor = () => {
       const foundEntry = getEntry(id);
       if (foundEntry) {
         setEntry(foundEntry);
+        // Set photo preview if entry has a photo
+        if (foundEntry.photo) {
+          setPhotoPreview(foundEntry.photo);
+        }
       } else {
         navigate('/');
       }
@@ -41,8 +49,105 @@ const JournalEditor = () => {
     updateEntry(updatedEntry);
   };
   
-  const handleMoodSelect = (mood) => {
-    const updatedEntry = { ...entry, mood };
+  const handleMoodSelect = (moods) => {
+    const updatedEntry = { ...entry, moods };
+    setEntry(updatedEntry);
+    updateEntry(updatedEntry);
+  };
+  
+  const resizeImage = (file, maxWidth = 1200, maxHeight = 1200, quality = 0.8) => {
+    return new Promise((resolve) => {
+      // Create a FileReader to read the file
+      const reader = new FileReader();
+      
+      // Set up the FileReader onload handler
+      reader.onload = (readerEvent) => {
+        // Create an image object
+        const img = new Image();
+        img.onload = () => {
+          // Calculate new dimensions
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > height) {
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+          }
+          
+          // Create a canvas with the desired dimensions
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Draw the image on the canvas
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Get the data from canvas as a dataURL
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          
+          // Resolve the promise with the dataURL
+          resolve(dataUrl);
+        };
+        
+        // Set the image source to the reader result
+        img.src = readerEvent.target.result;
+      };
+      
+      // Read the file as a Data URL
+      reader.readAsDataURL(file);
+    });
+  };
+  
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Check if file is an image
+    if (!file.type.match('image.*')) {
+      alert('Please select an image file');
+      return;
+    }
+    
+    // Check file size (limit to 10MB for initial upload, we'll resize it)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size should be less than 10MB');
+      return;
+    }
+    
+    try {
+      // Resize the image
+      const resizedImage = await resizeImage(file);
+      
+      // Set the resized image as the photo preview
+      setPhotoPreview(resizedImage);
+      
+      // Update entry with the resized image data
+      const updatedEntry = { ...entry, photo: resizedImage };
+      setEntry(updatedEntry);
+      updateEntry(updatedEntry);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      alert('There was an error processing your image. Please try again.');
+    }
+  };
+  
+  // Function to handle clicking on the photo
+  const handlePhotoClick = () => {
+    setShowPhotoViewer(true);
+  };
+  
+  // Function to remove the photo
+  const handleRemovePhoto = () => {
+    setPhotoPreview(null);
+    const updatedEntry = { ...entry, photo: null };
     setEntry(updatedEntry);
     updateEntry(updatedEntry);
   };
@@ -102,7 +207,7 @@ const JournalEditor = () => {
       />
       
       <label>How are you feeling today?</label>
-      <MoodSelector selectedMood={entry.mood} onSelectMood={handleMoodSelect} />
+      <MoodSelector selectedMoods={entry.moods || []} onSelectMood={handleMoodSelect} />
       
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
         <label>Title</label>
@@ -135,6 +240,61 @@ const JournalEditor = () => {
         className="animate-input"
       />
       
+      {/* Photo of the Day Section */}
+      <div className="photo-section">
+        <label>Photo of the Day</label>
+        <div className="photo-upload-container">
+          {!photoPreview ? (
+            <div className="photo-upload-area">
+              <input
+                type="file"
+                id="photo-upload"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                style={{ display: 'none' }}
+              />
+              <label htmlFor="photo-upload" className="photo-upload-button">
+                <div className="upload-icon">📷</div>
+                <span>Upload a Photo Highlight</span>
+              </label>
+              <p className="photo-upload-help">
+                Add a photo that captures a special moment from your day
+              </p>
+            </div>
+          ) : (
+            <div className="photo-preview-container">
+              <div className="photo-preview-wrapper">
+                <img 
+                  src={photoPreview} 
+                  alt="Your uploaded photo" 
+                  className="photo-preview" 
+                  onClick={handlePhotoClick}
+                  style={{ cursor: 'pointer' }}
+                />
+              </div>
+              <div className="photo-caption-container">
+                <textarea
+                  name="photoCaption"
+                  value={entry.photoCaption || ''}
+                  onChange={handleChange}
+                  placeholder="Why did you choose this photo? What makes it special?"
+                  className="animate-input photo-caption-input"
+                />
+              </div>
+              <div className="photo-actions">
+                <button 
+                  onClick={handleRemovePhoto}
+                  className="remove-photo-button"
+                >
+                  <span className="remove-icon">🗑️</span>
+                  <span>Remove Photo</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
       {/* Gratitude Section */}
       <label>Gratitude Journal</label>
       <div className="gratitude-container">
@@ -147,6 +307,15 @@ const JournalEditor = () => {
           className="animate-input gratitude-textarea"
         />
       </div>
+      
+      {/* Photo Viewer */}
+      {showPhotoViewer && photoPreview && (
+        <PhotoViewer 
+          photoSrc={photoPreview}
+          caption={entry.photoCaption}
+          onClose={() => setShowPhotoViewer(false)} 
+        />
+      )}
     </div>
   );
 };
