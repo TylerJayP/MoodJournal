@@ -1,10 +1,12 @@
-import React from 'react';
 
 const JournalItem = ({ entry }) => {
-  const { name, date, moods, title, photo } = entry;
+  const { name, date, moods, title, photo, tags } = entry;
   
   // Handle both old entries with mood (string) and new entries with moods (array)
   const moodsArray = Array.isArray(moods) ? moods : (entry.mood ? [entry.mood] : []);
+  
+  // Ensure tags is an array
+  const tagsArray = Array.isArray(tags) ? tags : [];
   
   return (
     <div className="journal-item">
@@ -24,6 +26,17 @@ const JournalItem = ({ entry }) => {
       </div>
       <h3>{title || 'Untitled Entry'}</h3>
       <p>{name}</p>
+      
+      {/* Display tags if present */}
+      {tagsArray.length > 0 && (
+        <div className="journal-tags">
+          {tagsArray.map((tag, index) => (
+            <span key={index} className="journal-tag-pill">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
       
       {/* Photo indicator */}
       {photo && (

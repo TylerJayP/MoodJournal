@@ -1,14 +1,28 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useJournal } from '../context/JournalContext';
+import SuggestionGenerator from './SuggestionGenerator';
+import AISuggestions from './AISuggestions';
+import ResourceRecommender from './ResourceRecommender';
+import Resources from './Resources';
+import MoodCalendar from './MoodCalendar';
 
-// Simple visualization with SVG
+// Dashboard component with analytics and insights
 const Dashboard = ({ onClose }) => {
-  const { getMoodStats } = useJournal();
-  const stats = getMoodStats();
-  const chartRef = useRef(null);
-  const [activeTab, setActiveTab] = useState('overview');
+  // Get journal data
+  const { getMoodStats, entries } = useJournal();
   
-  // Define mood colors (same as in MoodIcons.js)
+  // Get stats only once at component initialization
+  const stats = useMemo(() => getMoodStats(), [getMoodStats]);
+  
+  // Chart reference for measuring width
+  const chartRef = useRef(null);
+  
+  // Component state
+  const [activeTab, setActiveTab] = useState('overview');
+  const [suggestions, setSuggestions] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
+  
+  // Define mood colors (Consistent across the application)
   const moodColors = {
     'Happy': '#f1c40f',
     'Excited': '#e67e22',
@@ -33,18 +47,45 @@ const Dashboard = ({ onClose }) => {
     'Unspecified': '#bdc3c7'
   };
   
-  // Simple animation for statistics on mount
+  // Generate suggestions and recommendations once on mount
   useEffect(() => {
-    const statValues = document.querySelectorAll('.stat-value');
-    statValues.forEach((statValue, index) => {
-      setTimeout(() => {
-        statValue.style.opacity = '1';
-        statValue.style.transform = 'translateY(0)';
-      }, index * 100);
-    });
-  }, []);
+    // Generate suggestions based on journal entries
+    const generatedSuggestions = SuggestionGenerator.generateSuggestions(stats, entries);
+    
+    // Generate resource recommendations based on mood patterns
+    const generatedRecommendations = ResourceRecommender.getRecommendations(
+      stats.moodCounts, 
+      stats.totalMoodInstances
+    );
+    
+    setSuggestions(generatedSuggestions);
+    setRecommendations(generatedRecommendations);
+  }, []); // Empty dependency array means this runs once on mount
   
-  // Create a simple bar chart
+  // Handle animations when switching to the Overview tab
+  useEffect(() => {
+    if (activeTab === 'overview') {
+      const statValues = document.querySelectorAll('.stat-value');
+      
+      // Apply animations to stat values with a staggered delay
+      statValues.forEach((statValue, index) => {
+        // Reset animation state
+        statValue.style.opacity = '0';
+        statValue.style.transform = 'translateY(20px)';
+        
+        // Force reflow to restart animation
+        void statValue.offsetWidth;
+        
+        // Start animation with a slight delay for each card
+        setTimeout(() => {
+          statValue.style.opacity = '1';
+          statValue.style.transform = 'translateY(0)';
+        }, index * 100);
+      });
+    }
+  }, [activeTab]);
+  
+  // Create chart for mood distribution
   const createChart = () => {
     const moodCounts = stats.moodCounts;
     const svgWidth = chartRef.current ? chartRef.current.clientWidth : 600;
@@ -52,13 +93,15 @@ const Dashboard = ({ onClose }) => {
     const barPadding = 20;
     
     // Sort moods by count in descending order
-    const moods = Object.keys(moodCounts).sort((a, b) => 
-      moodCounts[b] - moodCounts[a]
-    ).slice(0, 10); // Show top 10 moods
+    const moods = Object.keys(moodCounts)
+      .sort((a, b) => moodCounts[b] - moodCounts[a])
+      .slice(0, 10); // Show top 10 moods
     
     const maxCount = Math.max(...Object.values(moodCounts), 1);
     
-    if (moods.length === 0) return <text x="50%" y="50%" textAnchor="middle">No mood data yet</text>;
+    if (moods.length === 0) {
+      return <text x="50%" y="50%" textAnchor="middle" fill="#95a5a6" fontSize="16">No mood data yet</text>;
+    }
     
     const barWidth = (svgWidth - 60) / moods.length - barPadding;
     
@@ -106,8 +149,8 @@ const Dashboard = ({ onClose }) => {
     });
   };
   
-  // Group entries by date for the history view
-  const createMoodHistory = () => {
+  // Create mood history data
+  const moodHistory = useMemo(() => {
     // Get the last 14 days
     const dateEntries = {};
     const today = new Date();
@@ -131,9 +174,7 @@ const Dashboard = ({ onClose }) => {
     return Object.entries(dateEntries)
       .map(([date, moods]) => ({ date, moods }))
       .sort((a, b) => new Date(a.date) - new Date(b.date));
-  };
-  
-  const moodHistory = createMoodHistory();
+  }, [stats.moodsByDate]);
   
   // Format date as "MMM DD"
   const formatDate = (dateStr) => {
@@ -160,6 +201,12 @@ const Dashboard = ({ onClose }) => {
           onClick={() => setActiveTab('history')}
         >
           Mood History
+        </button>
+        <button 
+          className={`dashboard-tab ${activeTab === 'calendar' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('calendar')}
+        >
+          Mood Calendar
         </button>
       </div>
       
@@ -205,11 +252,20 @@ const Dashboard = ({ onClose }) => {
             </svg>
           </div>
           
+          <div className="insights-section">
+            <AISuggestions suggestions={suggestions} />
+          </div>
+          
+          <div className="resources-section">
+            <Resources recommendations={recommendations} />
+          </div>
+          
           <div>
             <h3>Your Mood Colors</h3>
             <div className="mood-dots">
-              {Object.entries(moodColors).map(([mood, color]) => (
-                mood !== 'Unspecified' && stats.moodCounts[mood] > 0 && (
+              {Object.entries(moodColors)
+                .filter(([mood]) => mood !== 'Unspecified' && stats.moodCounts[mood] > 0)
+                .map(([mood, color]) => (
                   <div 
                     key={mood}
                     className="mood-dot"
@@ -218,8 +274,7 @@ const Dashboard = ({ onClose }) => {
                   >
                     {mood.substring(0, 1)}
                   </div>
-                )
-              ))}
+                ))}
             </div>
           </div>
         </div>
@@ -276,6 +331,12 @@ const Dashboard = ({ onClose }) => {
               ))
             }
           </div>
+        </div>
+      )}
+      
+      {activeTab === 'calendar' && (
+        <div className="dashboard-calendar">
+          <MoodCalendar entries={entries} moodColors={moodColors} />
         </div>
       )}
     </div>

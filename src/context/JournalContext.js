@@ -67,7 +67,8 @@ const createEntry = () => {
   const newEntry = {
     id: uuidv4(),
     name: user ? (user.displayName || user.username) : '',
-    moods: [], // Change from 'mood' to 'moods' array
+    moods: [],
+    tags: [], // Add an array to store tags
     title: '',
     description: '',
     gratitude: '',
@@ -96,6 +97,71 @@ const createEntry = () => {
       )
     );
   };
+
+  const getAllTags = () => {
+  // Get all unique tags across all entries
+  const tagSet = new Set();
+  
+  entries.forEach(entry => {
+    if (Array.isArray(entry.tags)) {
+      entry.tags.forEach(tag => tagSet.add(tag));
+    }
+  });
+  
+  return Array.from(tagSet).sort();
+};
+
+const getEntriesByTag = (tag) => {
+  // Filter entries by tag
+  return entries.filter(entry => 
+    Array.isArray(entry.tags) && entry.tags.includes(tag)
+  );
+};
+
+const getAllMoods = () => {
+  const moodSet = new Set();
+  
+  entries.forEach(entry => {
+    // Handle both old entries with mood (string) and new entries with moods (array)
+    const moodsArray = Array.isArray(entry.moods) ? entry.moods : (entry.mood ? [entry.mood] : []);
+    
+    moodsArray.forEach(mood => moodSet.add(mood));
+  });
+  
+  return Array.from(moodSet).sort();
+};
+
+// Filter entries by mood
+const getEntriesByMood = (mood) => {
+  return entries.filter(entry => {
+    // Handle both old entries with mood (string) and new entries with moods (array)
+    const moodsArray = Array.isArray(entry.moods) ? entry.moods : (entry.mood ? [entry.mood] : []);
+    
+    return moodsArray.includes(mood);
+  });
+};
+
+// Filter entries by both tag and mood
+const getFilteredEntries = (selectedTag, selectedMood) => {
+  return entries.filter(entry => {
+    // Check tag filter if applied
+    let matchesTag = true;
+    if (selectedTag) {
+      const tagsArray = Array.isArray(entry.tags) ? entry.tags : [];
+      matchesTag = tagsArray.includes(selectedTag);
+    }
+    
+    // Check mood filter if applied
+    let matchesMood = true;
+    if (selectedMood) {
+      const moodsArray = Array.isArray(entry.moods) ? entry.moods : (entry.mood ? [entry.mood] : []);
+      matchesMood = moodsArray.includes(selectedMood);
+    }
+    
+    // Entry must match both filters (if applied)
+    return matchesTag && matchesMood;
+  });
+};
     
   // Delete an entry
   const deleteEntry = (id) => {
@@ -165,17 +231,22 @@ const getMoodStats = () => {
   };
 };
     
-  return (
-    <JournalContext.Provider value={{
-      entries,
-      getEntry,
-      createEntry,
-      updateEntry,
-      deleteEntry,
-      getMoodStats,
-      cleanupEmptyEntries // ADDED: Export the cleanup function
-    }}>
-      {children}
-    </JournalContext.Provider>
-  );
+return (
+  <JournalContext.Provider value={{
+    entries,
+    getEntry,
+    createEntry,
+    updateEntry,
+    deleteEntry,
+    getMoodStats,
+    cleanupEmptyEntries,
+    getAllTags,
+    getEntriesByTag,
+    getAllMoods,         
+    getEntriesByMood,    
+    getFilteredEntries
+  }}>
+    {children}
+  </JournalContext.Provider>
+);
 };

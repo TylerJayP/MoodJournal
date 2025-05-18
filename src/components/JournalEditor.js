@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useJournal } from '../context/JournalContext';
 import MoodSelector from './MoodSelector';
+import TagSelector from './TagSelector';
 import PromptGenerator from './PromptGenerator';
 import PhotoViewer from './PhotoViewer';
 
@@ -51,6 +51,12 @@ const JournalEditor = () => {
   
   const handleMoodSelect = (moods) => {
     const updatedEntry = { ...entry, moods };
+    setEntry(updatedEntry);
+    updateEntry(updatedEntry);
+  };
+  
+  const handleTagsChange = (tags) => {
+    const updatedEntry = { ...entry, tags };
     setEntry(updatedEntry);
     updateEntry(updatedEntry);
   };
@@ -229,6 +235,12 @@ const JournalEditor = () => {
         onChange={handleChange}
         placeholder="Enter a title for your entry"
         className="animate-input"
+      />
+      
+      <label>Tags</label>
+      <TagSelector
+        selectedTags={entry.tags || []}
+        onTagsChange={handleTagsChange}
       />
       
       <label>Journal Entry</label>
