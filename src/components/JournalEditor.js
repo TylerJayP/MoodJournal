@@ -5,12 +5,14 @@ import MoodSelector from './MoodSelector';
 import TagSelector from './TagSelector';
 import PromptGenerator from './PromptGenerator';
 import PhotoViewer from './PhotoViewer';
+import SpeechToTextButton from './SpeechToTextButton';
 
 const JournalEditor = () => {
   const [entry, setEntry] = useState(null);
   const [prompt, setPrompt] = useState('');
   const [photoPreview, setPhotoPreview] = useState(null);
   const [showPhotoViewer, setShowPhotoViewer] = useState(false);
+  const [showPhotoUpload, setShowPhotoUpload] = useState(false); // New state for toggle
   const { getEntry, updateEntry, createEntry, deleteEntry } = useJournal();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -35,6 +37,7 @@ const JournalEditor = () => {
         // Set photo preview if entry has a photo
         if (foundEntry.photo) {
           setPhotoPreview(foundEntry.photo);
+          setShowPhotoUpload(true); // If an entry has a photo, show the photo section
         }
       } else {
         navigate('/');
@@ -45,6 +48,42 @@ const JournalEditor = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     const updatedEntry = { ...entry, [name]: value };
+    setEntry(updatedEntry);
+    updateEntry(updatedEntry);
+  };
+  
+  // Toggle handler for photo section
+  const handlePhotoToggle = (e) => {
+    setShowPhotoUpload(e.target.checked);
+    
+    // If unchecking and there was a photo, remove it
+    if (!e.target.checked && photoPreview) {
+      handleRemovePhoto();
+    }
+  };
+  
+  // Handler for receiving speech transcript for the main journal entry
+  const handleJournalTranscript = (transcript) => {
+    if (!entry) return;
+    
+    // Append the transcript to the current description, adding a space if needed
+    const currentText = entry.description || '';
+    const updatedText = currentText + (currentText.length > 0 && !currentText.endsWith(' ') ? ' ' : '') + transcript;
+    
+    const updatedEntry = { ...entry, description: updatedText };
+    setEntry(updatedEntry);
+    updateEntry(updatedEntry);
+  };
+  
+  // Handler for receiving speech transcript for the gratitude section
+  const handleGratitudeTranscript = (transcript) => {
+    if (!entry) return;
+    
+    // Append the transcript to the current gratitude text, adding a space if needed
+    const currentText = entry.gratitude || '';
+    const updatedText = currentText + (currentText.length > 0 && !currentText.endsWith(' ') ? ' ' : '') + transcript;
+    
+    const updatedEntry = { ...entry, gratitude: updatedText };
     setEntry(updatedEntry);
     updateEntry(updatedEntry);
   };
@@ -153,7 +192,7 @@ const JournalEditor = () => {
   // Function to remove the photo
   const handleRemovePhoto = () => {
     setPhotoPreview(null);
-    const updatedEntry = { ...entry, photo: null };
+    const updatedEntry = { ...entry, photo: null, photoCaption: '' };
     setEntry(updatedEntry);
     updateEntry(updatedEntry);
   };
@@ -211,6 +250,12 @@ const JournalEditor = () => {
         placeholder="Enter your name"
         className="animate-input"
       />
+
+      <label>Tags</label>
+      <TagSelector
+        selectedTags={entry.tags || []}
+        onTagsChange={handleTagsChange}
+      />
       
       <label>How are you feeling today?</label>
       <MoodSelector selectedMoods={entry.moods || []} onSelectMood={handleMoodSelect} />
@@ -237,12 +282,6 @@ const JournalEditor = () => {
         className="animate-input"
       />
       
-      <label>Tags</label>
-      <TagSelector
-        selectedTags={entry.tags || []}
-        onTagsChange={handleTagsChange}
-      />
-      
       <label>Journal Entry</label>
       <textarea
         name="description"
@@ -252,60 +291,11 @@ const JournalEditor = () => {
         className="animate-input"
       />
       
-      {/* Photo of the Day Section */}
-      <div className="photo-section">
-        <label>Photo of the Day</label>
-        <div className="photo-upload-container">
-          {!photoPreview ? (
-            <div className="photo-upload-area">
-              <input
-                type="file"
-                id="photo-upload"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                style={{ display: 'none' }}
-              />
-              <label htmlFor="photo-upload" className="photo-upload-button">
-                <div className="upload-icon">📷</div>
-                <span>Upload a Photo Highlight</span>
-              </label>
-              <p className="photo-upload-help">
-                Add a photo that captures a special moment from your day
-              </p>
-            </div>
-          ) : (
-            <div className="photo-preview-container">
-              <div className="photo-preview-wrapper">
-                <img 
-                  src={photoPreview} 
-                  alt="Your uploaded photo" 
-                  className="photo-preview" 
-                  onClick={handlePhotoClick}
-                  style={{ cursor: 'pointer' }}
-                />
-              </div>
-              <div className="photo-caption-container">
-                <textarea
-                  name="photoCaption"
-                  value={entry.photoCaption || ''}
-                  onChange={handleChange}
-                  placeholder="Why did you choose this photo? What makes it special?"
-                  className="animate-input photo-caption-input"
-                />
-              </div>
-              <div className="photo-actions">
-                <button 
-                  onClick={handleRemovePhoto}
-                  className="remove-photo-button"
-                >
-                  <span className="remove-icon">🗑️</span>
-                  <span>Remove Photo</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Enhanced Speech-to-Text for Journal Entry */}
+      <SpeechToTextButton 
+        onTranscriptReceived={handleJournalTranscript}
+        label="Too tired to type? Talk it out"
+      />
       
       {/* Gratitude Section */}
       <label>Gratitude Journal</label>
@@ -315,10 +305,85 @@ const JournalEditor = () => {
           name="gratitude"
           value={entry.gratitude || ''}
           onChange={handleChange}
-          placeholder="List three things you're thankful for today..."
+          placeholder="List things you're thankful for today..."
           className="animate-input gratitude-textarea"
         />
+        
+        {/* Enhanced Speech-to-Text for Gratitude */}
+        <SpeechToTextButton 
+          onTranscriptReceived={handleGratitudeTranscript}
+          label="Share your gratitude through voice"
+        />
       </div>
+      
+      {/* Photo Toggle - Moved to bottom */}
+      <div className="photo-toggle-container">
+        <label className="photo-toggle-label">
+          <input 
+            type="checkbox" 
+            checked={showPhotoUpload}
+            onChange={handlePhotoToggle}
+            className="photo-toggle-checkbox"
+          />
+          <span className="photo-toggle-text">Include a photo highlight for today?</span>
+        </label>
+      </div>
+      
+      {/* Photo of the Day Section - Only show when toggled on */}
+      {showPhotoUpload && (
+        <div className="photo-section">
+          <div className="photo-upload-container">
+            {!photoPreview ? (
+              <div className="photo-upload-area">
+                <input
+                  type="file"
+                  id="photo-upload"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  style={{ display: 'none' }}
+                />
+                <label htmlFor="photo-upload" className="photo-upload-button">
+                  <div className="upload-icon">📷</div>
+                  <span>Upload a Photo Highlight</span>
+                </label>
+                <p className="photo-upload-help">
+                  Add a photo that captures a special moment from your day
+                </p>
+              </div>
+            ) : (
+              <div className="photo-preview-container">
+                <div className="photo-preview-wrapper">
+                  <img 
+                    src={photoPreview} 
+                    alt="Your uploaded photo" 
+                    className="photo-preview" 
+                    onClick={handlePhotoClick}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </div>
+                <div className="photo-caption-container">
+                  <textarea
+                    name="photoCaption"
+                    value={entry.photoCaption || ''}
+                    onChange={handleChange}
+                    placeholder="Why did you choose this photo? What makes it special?"
+                    className="animate-input photo-caption-input"
+                  />
+                </div>
+                <div className="photo-actions">
+                  <button 
+                    onClick={handleRemovePhoto}
+                    className="remove-photo-button"
+                  >
+                    <span className="remove-icon">🗑️</span>
+                    <span>Remove Photo</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       
       {/* Photo Viewer */}
       {showPhotoViewer && photoPreview && (

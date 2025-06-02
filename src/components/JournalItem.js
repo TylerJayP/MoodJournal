@@ -1,4 +1,3 @@
-
 const JournalItem = ({ entry }) => {
   const { name, date, moods, title, photo, tags } = entry;
   
