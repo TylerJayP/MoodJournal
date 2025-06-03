@@ -355,7 +355,7 @@ const JournalEditor = () => {
                 <div className="photo-preview-wrapper">
                   <img 
                     src={photoPreview} 
-                    alt="Your uploaded photo" 
+                    alt="Daily highlight" 
                     className="photo-preview" 
                     onClick={handlePhotoClick}
                     style={{ cursor: 'pointer' }}

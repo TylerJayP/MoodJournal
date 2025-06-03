@@ -6,7 +6,7 @@ const PhotoViewer = ({ photoSrc, onClose, caption }) => {
       <div className="photo-viewer-container">
         <img 
           src={photoSrc} 
-          alt="Journal photo" 
+          alt="Daily highlight in fullscreen view" 
           className="full-photo" 
           onClick={(e) => e.stopPropagation()}
         />

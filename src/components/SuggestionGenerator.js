@@ -14,9 +14,6 @@ const SuggestionGenerator = {
       ];
     }
     
-    // Get the most frequent mood
-    const mostFrequentMood = stats.mostFrequentMood;
-    
     // Calculate mood prevalence
     const moodPrevalence = {};
     Object.entries(stats.moodCounts).forEach(([mood, count]) => {

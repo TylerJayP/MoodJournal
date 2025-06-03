@@ -47,7 +47,7 @@ const Dashboard = ({ onClose }) => {
     'Unspecified': '#bdc3c7'
   };
   
-  // Generate suggestions and recommendations once on mount
+  // Generate suggestions and recommendations once on mount or when stats/entries change
   useEffect(() => {
     // Generate suggestions based on journal entries
     const generatedSuggestions = SuggestionGenerator.generateSuggestions(stats, entries);
@@ -60,7 +60,7 @@ const Dashboard = ({ onClose }) => {
     
     setSuggestions(generatedSuggestions);
     setRecommendations(generatedRecommendations);
-  }, []); // Empty dependency array means this runs once on mount
+  }, [stats, entries]); // Include dependencies
   
   // Handle animations when switching to the Overview tab
   useEffect(() => {
